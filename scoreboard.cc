@@ -56,12 +56,21 @@ wxThread::ExitCode NetworkRecvThread::Entry()
   fd_set read_fds;
   int n_fds = 1 + std::max(std::max(vision_net.getFd(), ref_net.getFd()), autoref_net.getFd());
 
+  // Let the select time out after .1 seconds, so we can exit even if not
+  // getting any packets. select on Linux modifies the struct, so we
+  // re-initialize each time.
+  struct timeval timeout;
+
   while (!TestDestroy()) {
     FD_ZERO(&read_fds);
     FD_SET(vision_net.getFd(), &read_fds);
     FD_SET(ref_net.getFd(), &read_fds);
     FD_SET(autoref_net.getFd(), &read_fds);
-    select(n_fds, &read_fds, nullptr, nullptr, nullptr);
+
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 1000000;
+
+    select(n_fds, &read_fds, nullptr, nullptr, &timeout);
 
     if (FD_ISSET(vision_net.getFd(), &read_fds) && vision_net.recv(vision_msg)) {
       if (vision_msg.has_detection()) {
