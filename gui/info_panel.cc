@@ -8,11 +8,10 @@ using gbp = wxGBPosition;
 #include "scoreboard.h"
 
 #include "gui_utils.h"
-#include "style.h"
 #include "shared/util.h"
+#include "style.h"
 
-GameInfoPanel::GameInfoPanel(wxWindow *parent, wxWindowID id, ScoreboardApp *board)
-    : wxPanel(parent, id), board(board)
+GameInfoPanel::GameInfoPanel(wxWindow *parent, wxWindowID id, ScoreboardApp *board) : wxPanel(parent, id), board(board)
 {
   auto sizer = new wxBoxSizer(wxVERTICAL);
   SetSizer(sizer);
@@ -105,8 +104,8 @@ void GameInfoPanel::update()
   command_text->SetLabel(ws(commandDisplayName(msg.command())));
   time_text->SetLabel(formatTime(msg.stage_time_left()));
 
-  if (1 || msg.stage_time_left() > 0) {
-    time_text->SetBackgroundColour(wxColour(255, 64, 64));
+  if (msg.stage_time_left() < 0) {
+    time_text->SetForegroundColour(wxColour(255, 64, 64));
   }
   else {
     time_text->SetBackgroundColour(wxNullColour);

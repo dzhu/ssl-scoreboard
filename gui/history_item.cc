@@ -68,7 +68,7 @@ wxRefereeHistoryItem::wxRefereeHistoryItem(wxWindow *parent, wxWindowID id, ssl:
   switch (update.event_case()) {
     case ssl::SSL_Autoref::kBallOutOfField: {
       bool isBlue = update.ball_out_of_field().last_touch() == ssl::SSL_Autoref_Team_BLUE;
-      call_str = "Ball out";  // isBlue ? "Ball out on blue" : "Ball out on yellow";
+      call_str = "Ball out";
       call_colour = isBlue ? blue_team_colour : yellow_team_colour;
 
       start_colour.Set(255, 128, 128);
