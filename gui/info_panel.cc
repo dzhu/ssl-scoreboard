@@ -74,7 +74,7 @@ GameInfoPanel::GameInfoPanel(wxWindow *parent, wxWindowID id, ScoreboardApp *boa
     ref_sizer->Add(command_text, gbp(1, 2), wxDefaultSpan);
     ref_sizer->Add(stage_text, gbp(2, 2), wxDefaultSpan);
 
-    ref_sizer->Add(50, 0, gbp(0, 1));
+    ref_sizer->Add(20, 0, gbp(0, 1));
 
     sizer->Add(ref_sizer, 0, wxALIGN_LEFT);
   }

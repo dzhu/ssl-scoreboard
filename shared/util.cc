@@ -113,7 +113,23 @@ std::string stageDisplayName(SSL_Referee::Stage stage)
       return "PRE SECOND HALF";
     case SSL_Referee::NORMAL_SECOND_HALF:
       return "SECOND HALF";
-    default:
+    case SSL_Referee::EXTRA_TIME_BREAK:
+      return "EXTRA TIME BREAK";
+    case SSL_Referee::EXTRA_FIRST_HALF_PRE:
+      return "PRE EXTRA FIRST HALF";
+    case SSL_Referee::EXTRA_FIRST_HALF:
+      return "EXTRA FIRST HALF";
+    case SSL_Referee::EXTRA_HALF_TIME:
+      return "EXTRA HALF TIME";
+    case SSL_Referee::EXTRA_SECOND_HALF_PRE:
+      return "PRE EXTRA SECOND HALF";
+    case SSL_Referee::EXTRA_SECOND_HALF:
+      return "EXTRA SECOND HALF";
+    case SSL_Referee::PENALTY_SHOOTOUT_BREAK:
+      return "PENALTY SHOOTOUT BREAK";
+    case SSL_Referee::PENALTY_SHOOTOUT:
+      return "PENALTY SHOOTOUT";
+    case SSL_Referee::POST_GAME:
       return "POST GAME";
   }
 }
