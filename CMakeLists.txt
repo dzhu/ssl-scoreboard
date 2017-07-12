@@ -74,6 +74,7 @@ add_executable (scoreboard
   gui/history_panel.cc
   gui/field_panel.cc
   gui/gui_utils.cc
+  shared/tracker.cc
   shared/udp.cc
   shared/util.cc
   )

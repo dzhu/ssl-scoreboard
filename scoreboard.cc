@@ -132,32 +132,32 @@ int ScoreboardApp::OnExit()
 
 void ScoreboardApp::updateVision(const SSL_DetectionFrame &d)
 {
-  detection_msg = d;
-  detection_history.push_back(d);
-  // only store one minute of history
-  if (detection_history.size() > 60 * 60) {
-    detection_history.pop_front();
+  tracker.updateVision(d);
+  if (tracker.getWorld(world)) {
+    world_history.push_back(world);
+    // only store one minute of history
+    if (world_history.size() > 60 * 60) {
+      world_history.pop_front();
+    }
+    display_frame->Refresh();
   }
-  refresh();
 }
 
 void ScoreboardApp::updateGeometry(const SSL_GeometryData &g)
 {
   geometry_msg = g;
-  refresh();
+  display_frame->Refresh();
 }
 
 void ScoreboardApp::updateAutoref(const ssl::SSL_Autoref &a)
 {
   display_frame->history_panel->update(a);
-
+  display_frame->Refresh();
   if (enable_replays && a.has_replay()) {
     replay_start = a.replay().start_timestamp();
     replay_end = a.replay().end_timestamp();
     replay_actual_start = a.command_timestamp();
   }
-
-  refresh();
 }
 
 void ScoreboardApp::updateReferee(const SSL_Referee &r)
@@ -165,7 +165,7 @@ void ScoreboardApp::updateReferee(const SSL_Referee &r)
   referee_msg = r;
   display_frame->info_panel->update();
   display_frame->GetSizer()->Layout();
-  refresh();
+  display_frame->Refresh();
 }
 
 int main(int argc, char *argv[])

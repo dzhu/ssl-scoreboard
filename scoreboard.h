@@ -6,6 +6,9 @@
 #include "gui/event_types.h"
 #include "gui/main_frame.h"
 
+#include "shared/tracker.h"
+#include "shared/world.h"
+
 #include "messages_robocup_ssl_wrapper.pb.h"
 #include "ssl_autoref.pb.h"
 
@@ -29,6 +32,7 @@ class ScoreboardApp : public wxApp
   int argc;
   char **argv;
   NetworkRecvThread *network_thread;
+  Tracker tracker;
 
   ScoreboardFrame *display_frame;
   ScoreboardControlFrame *control_frame;
@@ -40,7 +44,8 @@ class ScoreboardApp : public wxApp
   }
 
 public:
-  std::deque<SSL_DetectionFrame> detection_history;
+  World world;
+  std::deque<World> world_history;
 
   SSL_DetectionFrame detection_msg;
   SSL_GeometryData geometry_msg;

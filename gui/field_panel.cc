@@ -15,7 +15,7 @@ FieldPanel::FieldPanel(wxWindow *parent, wxWindowID id, ScoreboardApp *board)
   Bind(wxEVT_PAINT, &FieldPanel::render, this, wxID_ANY);
 }
 
-void FieldPanel::drawRobot(wxGraphicsContext &gc, bool isBlue, double x, double y, double orientation)
+void FieldPanel::drawRobot(wxGraphicsContext &gc, WorldRobot r)
 {
   static const double R = 90;
   static const int N = 20;
@@ -24,14 +24,14 @@ void FieldPanel::drawRobot(wxGraphicsContext &gc, bool isBlue, double x, double 
 
   double verts[N][2];
   for (int i = 0; i < N; i++) {
-    double th = orientation + th0 + (th1 - th0) * i / (N - 1);
-    verts[i][0] = x + R * cos(th);
-    verts[i][1] = y + R * sin(th);
+    double th = r.angle + th0 + (th1 - th0) * i / (N - 1);
+    verts[i][0] = r.loc.x + R * cos(th);
+    verts[i][1] = r.loc.y + R * sin(th);
   }
 
   gc.SetAntialiasMode(wxANTIALIAS_DEFAULT);
   gc.SetPen(wxPen(wxColour(0, 0, 0), 15));
-  gc.SetBrush(wxBrush(isBlue ? blue_team_colour : yellow_team_colour));
+  gc.SetBrush(wxBrush(r.team == TeamBlue ? blue_team_colour : yellow_team_colour));
 
   if (0) {
     wxGraphicsPath path = gc.CreatePath();
@@ -158,11 +158,11 @@ void FieldPanel::render(wxPaintEvent &event)
   }
 
   // draw world objects
-  SSL_DetectionFrame *detection = nullptr;
+  World *world = nullptr;
   if (is_replay) {
-    for (auto &msg : board->detection_history) {
-      if (msg.t_sent() * 1e6 < replay_time) {
-        detection = &msg;
+    for (auto &w : board->world_history) {
+      if (w.time * 1e6 < replay_time) {
+        world = &w;
       }
       else {
         break;
@@ -170,24 +170,19 @@ void FieldPanel::render(wxPaintEvent &event)
     }
   }
   else {
-    detection = &board->detection_msg;
+    world = &board->world;
   }
 
-  if (detection != nullptr) {
+  if (world != nullptr) {
     // draw robots
-    for (auto r : detection->robots_blue()) {
-      drawRobot(gc, true, r.x(), r.y(), r.orientation());
-    }
-    for (auto r : detection->robots_yellow()) {
-      drawRobot(gc, false, r.x(), r.y(), r.orientation());
+    for (auto r : world->robots) {
+      drawRobot(gc, r);
     }
 
     // draw all detected balls
     {
       wxGraphicsPath path = gc.CreatePath();
-      for (auto b : detection->balls()) {
-        path.AddCircle(b.x(), b.y(), 40);
-      }
+      path.AddCircle(world->ball.loc.x, world->ball.loc.y, 40);
 
       gc.SetBrush(wxBrush(wxColour(255, 128, 0)));
       gc.FillPath(path);

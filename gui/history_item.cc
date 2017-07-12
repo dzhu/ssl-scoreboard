@@ -90,6 +90,7 @@ wxRefereeHistoryItem::wxRefereeHistoryItem(wxWindow *parent, wxWindowID id, ssl:
       start_colour.Set(32, 255, 32);
     } break;
     case ssl::SSL_Autoref::kLackOfProgress:
+      // TODO
       break;
     case ssl::SSL_Autoref::EVENT_NOT_SET:
       break;
