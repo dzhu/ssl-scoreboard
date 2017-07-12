@@ -70,6 +70,8 @@ void FieldPanel::render(wxPaintEvent &event)
 
   wxGraphicsContext &gc = *gc_p;
 
+  gc.SetAntialiasMode(wxANTIALIAS_DEFAULT);
+
   SSL_GeometryData &geo = board->geometry_msg;
   if (!geo.has_field()) {
     puts("no geo!");
@@ -81,6 +83,7 @@ void FieldPanel::render(wxPaintEvent &event)
     dims.set_goal_depth(200);
     dims.set_defense_radius(1000);
     dims.set_defense_stretch(500);
+    dims.set_center_circle_radius(500);
   }
 
   const SSL_GeometryFieldSize &dims = geo.field();
@@ -89,6 +92,7 @@ void FieldPanel::render(wxPaintEvent &event)
   double fwh = dims.field_width() / 2, flh = dims.field_length() / 2;
   double gd = dims.goal_depth(), gwh = dims.goal_width() / 2;
   double dr = dims.defense_radius(), dsh = dims.defense_stretch() / 2;
+  double ccr = dims.center_circle_radius();
 
   double margin = gd + 80;
   double min_x = -flh - margin;
@@ -124,12 +128,11 @@ void FieldPanel::render(wxPaintEvent &event)
   // draw field lines
   {
     wxGraphicsPath path = gc.CreatePath();
-    gc.SetAntialiasMode(wxANTIALIAS_DEFAULT);
     path.MoveToPoint(0, -fwh);
     path.AddLineToPoint(0, fwh);
     path.AddRectangle(-flh, -fwh, flh * 2, fwh * 2);
 
-    path.AddCircle(0, 0, 500);
+    path.AddCircle(0, 0, ccr);
     path.MoveToPoint(-flh, dsh + dr);
     path.AddArc(-flh, dsh, dr, M_PI_2, 0, false);
     path.AddLineToPoint(-flh + dr, -dsh);
