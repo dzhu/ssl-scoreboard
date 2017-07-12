@@ -30,6 +30,10 @@ ScoreboardControlFrame::ScoreboardControlFrame(const wxString &title, Scoreboard
   enable_replays->Bind(wxEVT_CHECKBOX,
                        [=](wxCommandEvent &event) { board->setEnableReplays(enable_replays->GetValue()); });
 
+  wxCheckBox *flip_sides = new wxCheckBox(this, wxID_ANY, "Flip sides");
+  sizer->Add(flip_sides, 0);
+  flip_sides->Bind(wxEVT_CHECKBOX, [=](wxCommandEvent &event) { board->setFlipSides(flip_sides->GetValue()); });
+
   // wxCheckBox *follow_ball = new wxCheckBox(this, wxID_ANY, "Replays follow ball");
   // follow_ball->SetValue(true);
   // sizer->Add(follow_ball, 0);

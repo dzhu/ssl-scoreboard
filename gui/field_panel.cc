@@ -103,6 +103,9 @@ void FieldPanel::render(wxPaintEvent &event)
   double scale = std::min(sz.y / (max_y - min_y), sz.x / (max_x - min_x));
   gc.Translate(sz.x / 2, sz.y / 2);
   gc.Scale(scale, -scale);
+  if (board->flip_sides) {
+    gc.Scale(-1, -1);
+  }
 
   // draw background green rectangle
   {

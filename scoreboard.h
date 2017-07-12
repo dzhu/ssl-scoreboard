@@ -53,6 +53,7 @@ public:
 
   uint64_t replay_start, replay_end, replay_actual_start;
 
+  bool flip_sides;
   bool enable_replays, replays_follow_ball;
 
   virtual bool OnInit();
@@ -64,6 +65,7 @@ public:
         replay_start(0),
         replay_end(0),
         replay_actual_start(0),
+        flip_sides(false),
         enable_replays(true),
         replays_follow_ball(true){};
 
@@ -79,5 +81,9 @@ public:
   void setFollowBall(bool e)
   {
     replays_follow_ball = e;
+  }
+  void setFlipSides(bool e)
+  {
+    flip_sides = e;
   }
 };
