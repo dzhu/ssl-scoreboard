@@ -1,5 +1,12 @@
 cmake_minimum_required (VERSION 2.8)
 
+# https://crascit.com/2016/04/09/using-ccache-with-cmake/
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+  message  (STATUS "Using ccache: ${CCACHE_PROGRAM}")
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+endif()
+
 project (ssl-scoreboard)
 
 #### miscellaneous compile settings
@@ -53,7 +60,6 @@ add_dependencies (shared_protobuf GenerateProto)
 target_link_libraries (shared_protobuf protobuf)
 
 #### pull in wx
-set (wxWidgets_CONFIGURATION mswu)
 find_package (wxWidgets COMPONENTS core base REQUIRED)
 include (${wxWidgets_USE_FILE})
 
