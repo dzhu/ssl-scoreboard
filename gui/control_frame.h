@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 
 #include <wx/wx.h>
@@ -8,12 +10,12 @@ class ScoreboardControlFrame : public wxFrame
 {
   ScoreboardApp *board;
 
-public:
-  ScoreboardControlFrame(const wxString &title, ScoreboardApp *board);
-
-private:
   void OnQuit(wxCommandEvent &event)
   {
     Close(true);
   }
+  void OnClose(wxCloseEvent &event);
+
+public:
+  ScoreboardControlFrame(const wxString &title, ScoreboardApp *board);
 };

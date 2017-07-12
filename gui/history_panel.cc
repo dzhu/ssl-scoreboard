@@ -8,7 +8,7 @@ void HistoryPanel::update(const ssl::SSL_Autoref &a)
   // set current first item to small
   if (sizer->GetItemCount() > 0) {
     wxSizerItem *first_item = sizer->GetItem(static_cast<size_t>(0));
-    wxRefereeHistoryItem *win = (wxRefereeHistoryItem *)(first_item->GetWindow());
+    wxRefereeHistoryItem *win = static_cast<wxRefereeHistoryItem *>(first_item->GetWindow());
     win->setEmph(false);
   }
 

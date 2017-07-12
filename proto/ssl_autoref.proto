@@ -62,4 +62,11 @@ message SSL_Autoref {
         Goal goal = 5;
         bool lack_of_progress = 6;
     }
+
+    message Replay {
+      required uint64 start_timestamp = 1;
+      required uint64 end_timestamp = 2;
+    }
+
+    optional Replay replay = 7;
 }

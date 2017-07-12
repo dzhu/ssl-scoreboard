@@ -85,7 +85,11 @@ bool UDP::open(const char *server_host, int port, bool blocking)
     sockname.sin_family = AF_INET;
     sockname.sin_addr.s_addr = htonl(INADDR_ANY);
     sockname.sin_port = htons(port);
-    bind(fd, reinterpret_cast<struct sockaddr *>(&sockname), sizeof(sockname));
+    if (bind(fd, reinterpret_cast<struct sockaddr *>(&sockname), sizeof(sockname)) != 0) {
+      fprintf(stderr, "ERROR ON BINDING ON UDP SOCKET: %s\n", strerror(errno));
+      fflush(stderr);
+      return false;
+    }
   }
 
   // add UDP multicast groups

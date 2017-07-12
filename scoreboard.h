@@ -1,3 +1,5 @@
+#pragma once
+
 #include <wx/wx.h>
 
 #include "gui/control_frame.h"
@@ -29,27 +31,48 @@ class ScoreboardApp : public wxApp
   NetworkRecvThread *network_thread;
 
   ScoreboardFrame *display_frame;
-  //ScoreboardControlFrame *control_frame;
+  ScoreboardControlFrame *control_frame;
 
   void refresh()
   {
     display_frame->Refresh();
-    // control_frame->Refresh();
+    control_frame->Refresh();
   }
 
 public:
+  std::deque<SSL_DetectionFrame> detection_history;
+
   SSL_DetectionFrame detection_msg;
   SSL_GeometryData geometry_msg;
-  // std::vector<ssl::SSL_Autoref> autoref_msgs;
   SSL_Referee referee_msg;
+
+  uint64_t replay_start, replay_end, replay_actual_start;
+
+  bool enable_replays, replays_follow_ball;
 
   virtual bool OnInit();
   virtual int OnExit();
 
-  ScoreboardApp(int argc, char **argv) : argc(argc), argv(argv){};
+  ScoreboardApp(int argc, char **argv)
+      : argc(argc),
+        argv(argv),
+        replay_start(0),
+        replay_end(0),
+        replay_actual_start(0),
+        enable_replays(true),
+        replays_follow_ball(true){};
 
   void updateVision(const SSL_DetectionFrame &d);
   void updateGeometry(const SSL_GeometryData &g);
   void updateAutoref(const ssl::SSL_Autoref &a);
   void updateReferee(const SSL_Referee &r);
+
+  void setEnableReplays(bool e)
+  {
+    enable_replays = e;
+  }
+  void setFollowBall(bool e)
+  {
+    replays_follow_ball = e;
+  }
 };

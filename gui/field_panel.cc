@@ -4,6 +4,7 @@
 #include "scoreboard.h"
 
 #include "gui_utils.h"
+#include "shared/util.h"
 #include "style.h"
 
 FieldPanel::FieldPanel(wxWindow *parent, wxWindowID id, ScoreboardApp *board)
@@ -53,6 +54,12 @@ void FieldPanel::drawRobot(wxGraphicsContext &gc, bool isBlue, double x, double 
 
 void FieldPanel::render(wxPaintEvent &event)
 {
+  // TODO we assume our local machine time matches closely with autoref and
+  // vision message times
+  uint64_t now = GetTimeMicros();
+  uint64_t replay_time = board->replay_start + now - board->replay_actual_start;
+  bool is_replay = replay_time < board->replay_end;
+
   wxPaintDC dc(this);
   wxGraphicsContext *gc_p = wxGraphicsContext::Create(dc);
 
@@ -98,7 +105,7 @@ void FieldPanel::render(wxPaintEvent &event)
     wxGraphicsPath path = gc.CreatePath();
     path.AddRectangle(min_x, min_y, max_x - min_x, max_y - min_y);
 
-    gc.SetBrush(wxBrush(wxColour(0, 128, 0)));
+    gc.SetBrush(wxBrush(is_replay ? wxColour(0, 65, 0) : wxColour(0, 128, 0)));
     gc.FillPath(path);
   }
 
@@ -147,26 +154,44 @@ void FieldPanel::render(wxPaintEvent &event)
     gc.StrokePath(path);
   }
 
-  // draw robots
-  for (auto r : board->detection_msg.robots_blue()) {
-    drawRobot(gc, true, r.x(), r.y(), r.orientation());
+  // draw world objects
+  SSL_DetectionFrame *detection = nullptr;
+  if (is_replay) {
+    for (auto &msg : board->detection_history) {
+      if (msg.t_sent() * 1e6 < replay_time) {
+        detection = &msg;
+      }
+      else {
+        break;
+      }
+    }
   }
-  for (auto r : board->detection_msg.robots_yellow()) {
-    drawRobot(gc, false, r.x(), r.y(), r.orientation());
+  else {
+    detection = &board->detection_msg;
   }
 
-  // draw all detected balls
-  {
-    wxGraphicsPath path = gc.CreatePath();
-    for (auto b : board->detection_msg.balls()) {
-      path.AddCircle(b.x(), b.y(), 40);
+  if (detection != nullptr) {
+    // draw robots
+    for (auto r : detection->robots_blue()) {
+      drawRobot(gc, true, r.x(), r.y(), r.orientation());
+    }
+    for (auto r : detection->robots_yellow()) {
+      drawRobot(gc, false, r.x(), r.y(), r.orientation());
     }
 
-    gc.SetBrush(wxBrush(wxColour(255, 128, 0)));
-    gc.FillPath(path);
+    // draw all detected balls
+    {
+      wxGraphicsPath path = gc.CreatePath();
+      for (auto b : detection->balls()) {
+        path.AddCircle(b.x(), b.y(), 40);
+      }
 
-    gc.SetPen(wxPen(wxColour(0, 0, 0), 15));
-    gc.StrokePath(path);
+      gc.SetBrush(wxBrush(wxColour(255, 128, 0)));
+      gc.FillPath(path);
+
+      gc.SetPen(wxPen(wxColour(0, 0, 0), 15));
+      gc.StrokePath(path);
+    }
   }
 
   delete gc_p;

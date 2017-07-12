@@ -1,12 +1,24 @@
 #include "main_frame.h"
 
-#include "gui_utils.h"
+#include "scoreboard.h"
+
 #include <wx/gbsizer.h>
+#include "gui_utils.h"
 
 using gbp = wxGBPosition;
 
-ScoreboardFrame::ScoreboardFrame(const wxString &title, ScoreboardApp *board) : wxFrame(nullptr, wxID_ANY, title), board(board)
+void ScoreboardFrame::OnClose(wxCloseEvent &event)
 {
+  board->Exit();
+  event.Skip();
+}
+
+ScoreboardFrame::ScoreboardFrame(const wxString &title, ScoreboardApp *board)
+    : wxFrame(nullptr, wxID_ANY, title), board(board)
+{
+
+  Bind(wxEVT_CLOSE_WINDOW, &ScoreboardFrame::OnClose, this);
+
   wxIcon icon(_T("robocup.png"), wxBITMAP_TYPE_PNG);
   SetIcon(icon);
 
@@ -22,10 +34,10 @@ ScoreboardFrame::ScoreboardFrame(const wxString &title, ScoreboardApp *board) : 
 
   wxFont top_label_font(32, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL);
 
-  //wxStaticText *info_label = makeText(this, "Game information", top_label_font);
+  // wxStaticText *info_label = makeText(this, "Game information", top_label_font);
   wxStaticText *history_label = makeText(this, "Referee decisions", top_label_font);
 
-  //sizer->Add(info_label, gbp(1, 1), wxDefaultSpan, wxALIGN_LEFT);
+  // sizer->Add(info_label, gbp(1, 1), wxDefaultSpan, wxALIGN_LEFT);
   sizer->Add(history_label, gbp(1, 3), wxDefaultSpan, wxALIGN_LEFT);
 
   info_panel = new GameInfoPanel(this, wxID_ANY, board);

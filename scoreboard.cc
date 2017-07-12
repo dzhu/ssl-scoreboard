@@ -88,7 +88,7 @@ wxThread::ExitCode NetworkRecvThread::Entry()
     }
   }
 
-  return 0;
+  return nullptr;
 }
 
 bool ScoreboardApp::OnInit()
@@ -112,8 +112,8 @@ bool ScoreboardApp::OnInit()
 
   display_frame = new ScoreboardFrame(_T("SSL Scoreboard"), this);
   display_frame->Show(true);
-  // control_frame = new ScoreboardControlFrame(_T("Scoreboard control"), this);
-  // control_frame->Show(true);
+  control_frame = new ScoreboardControlFrame(_T("Scoreboard control"), this);
+  control_frame->Show(true);
 
   network_thread = new NetworkRecvThread(this);
   network_thread->Create();
@@ -133,6 +133,11 @@ int ScoreboardApp::OnExit()
 void ScoreboardApp::updateVision(const SSL_DetectionFrame &d)
 {
   detection_msg = d;
+  detection_history.push_back(d);
+  // only store one minute of history
+  if (detection_history.size() > 60 * 60) {
+    detection_history.pop_front();
+  }
   refresh();
 }
 
@@ -145,7 +150,13 @@ void ScoreboardApp::updateGeometry(const SSL_GeometryData &g)
 void ScoreboardApp::updateAutoref(const ssl::SSL_Autoref &a)
 {
   display_frame->history_panel->update(a);
-  display_frame->GetSizer()->Layout();
+
+  if (enable_replays && a.has_replay()) {
+    replay_start = a.replay().start_timestamp();
+    replay_end = a.replay().end_timestamp();
+    replay_actual_start = a.command_timestamp();
+  }
+
   refresh();
 }
 
