@@ -74,7 +74,7 @@ void Tracker::updateVision(const SSL_DetectionFrame &d)
       cameras_seen[camera] = true;
     }
 
-    if (frames++ >= 100) {
+    if (frames++ >= 20) {
       num_cameras = num_cameras_seen;
 
       for (bool &s : cameras_seen) {
