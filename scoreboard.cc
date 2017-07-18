@@ -91,6 +91,19 @@ wxThread::ExitCode NetworkRecvThread::Entry()
   return nullptr;
 }
 
+ScoreboardApp::ScoreboardApp(int argc, char **argv)
+    : argc(argc),
+      argv(argv),
+      replay_margin_usec(250000),
+      replay_start(0),
+      replay_end(0),
+      replay_actual_start(0),
+      flip_sides(false),
+      enable_replays(true),
+      replays_follow_ball(true)
+{
+}
+
 bool ScoreboardApp::OnInit()
 {
   if (!wxApp::OnInit()) {
@@ -153,9 +166,10 @@ void ScoreboardApp::updateAutoref(const ssl::SSL_Autoref &a)
 {
   display_frame->history_panel->update(a);
   display_frame->Refresh();
+
   if (enable_replays && a.has_replay()) {
-    replay_start = a.replay().start_timestamp();
-    replay_end = a.replay().end_timestamp();
+    replay_start = a.replay().start_timestamp() - replay_margin_usec;
+    replay_end = a.replay().end_timestamp() + replay_margin_usec;
     replay_actual_start = a.command_timestamp();
   }
 }

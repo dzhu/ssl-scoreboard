@@ -43,6 +43,8 @@ class ScoreboardApp : public wxApp
     control_frame->Refresh();
   }
 
+  uint64_t replay_margin_usec;
+
 public:
   World world;
   std::deque<World> world_history;
@@ -59,15 +61,7 @@ public:
   virtual bool OnInit();
   virtual int OnExit();
 
-  ScoreboardApp(int argc, char **argv)
-      : argc(argc),
-        argv(argv),
-        replay_start(0),
-        replay_end(0),
-        replay_actual_start(0),
-        flip_sides(false),
-        enable_replays(true),
-        replays_follow_ball(true){};
+  ScoreboardApp(int argc, char **argv);
 
   void updateVision(const SSL_DetectionFrame &d);
   void updateGeometry(const SSL_GeometryData &g);
