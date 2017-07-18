@@ -3,8 +3,8 @@
 #include <wx/gbsizer.h>
 #include <wx/wx.h>
 
-#include "ssl_referee.pb.h"
 #include "ssl_autoref.pb.h"
+#include "ssl_referee.pb.h"
 
 class wxRefereeHistoryItem : public wxPanel
 {

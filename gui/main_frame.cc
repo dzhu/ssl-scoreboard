@@ -16,7 +16,6 @@ void ScoreboardFrame::OnClose(wxCloseEvent &event)
 ScoreboardFrame::ScoreboardFrame(const wxString &title, ScoreboardApp *board)
     : wxFrame(nullptr, wxID_ANY, title), board(board)
 {
-
   Bind(wxEVT_CLOSE_WINDOW, &ScoreboardFrame::OnClose, this);
 
   wxIcon icon(_T("robocup.png"), wxBITMAP_TYPE_PNG);
