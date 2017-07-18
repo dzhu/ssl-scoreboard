@@ -65,19 +65,19 @@ wxRefereeHistoryItem::wxRefereeHistoryItem(wxWindow *parent, wxWindowID id, ssl:
   std::string call_str, robots_str;
   wxColour call_colour;
 
+  // default start colour (reddish, to evoke fouls)
+  start_colour.Set(255, 128, 128);
+
   switch (update.event_case()) {
     case ssl::SSL_Autoref::kBallOutOfField: {
       bool isBlue = update.ball_out_of_field().last_touch() == ssl::SSL_Autoref_Team_BLUE;
       call_str = "Ball out";
       call_colour = isBlue ? blue_team_colour : yellow_team_colour;
-
-      start_colour.Set(255, 128, 128);
     } break;
     case ssl::SSL_Autoref::kFoul: {
       bool isBlue = update.foul().offending_team() == ssl::SSL_Autoref_Team_BLUE;
       call_str = "Foul: " + infringementDescription(update.foul().foul_type());
       call_colour = isBlue ? blue_team_colour : yellow_team_colour;
-      start_colour.Set(255, 128, 128);
     } break;
     case ssl::SSL_Autoref::kGoal: {
       bool isBlue = update.goal().scoring_team() == ssl::SSL_Autoref_Team_BLUE;
@@ -87,11 +87,15 @@ wxRefereeHistoryItem::wxRefereeHistoryItem(wxWindow *parent, wxWindowID id, ssl:
       if (update.goal().has_scoring_robot()) {
       }
 
+      // set start colour to green instead
       start_colour.Set(32, 255, 32);
     } break;
-    case ssl::SSL_Autoref::kLackOfProgress:
-      // TODO
+    case ssl::SSL_Autoref::kLackOfProgress: {
+      if (update.lack_of_progress()) {
+        call_str = "Lack of progress";
+      }
       break;
+    }
     case ssl::SSL_Autoref::EVENT_NOT_SET:
       break;
   }
