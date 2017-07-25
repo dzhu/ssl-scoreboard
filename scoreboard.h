@@ -6,6 +6,7 @@
 #include "gui/event_types.h"
 #include "gui/main_frame.h"
 
+#include "shared/autoref_comparer.h"
 #include "shared/tracker.h"
 #include "shared/world.h"
 
@@ -37,6 +38,8 @@ class ScoreboardApp : public wxApp
   ScoreboardFrame *display_frame;
   ScoreboardControlFrame *control_frame;
 
+  AutorefComparer comparer;
+
   void refresh()
   {
     display_frame->Refresh();
@@ -65,7 +68,7 @@ public:
 
   void updateVision(const SSL_DetectionFrame &d);
   void updateGeometry(const SSL_GeometryData &g);
-  void updateAutoref(const ssl::SSL_Autoref &a);
+  void updateAutoref(const ssl::SSL_Autoref &a, const Address &src);
   void updateReferee(const SSL_Referee &r);
 
   void setEnableReplays(bool e)

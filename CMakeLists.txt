@@ -25,11 +25,12 @@ file (MAKE_DIRECTORY ${PROTO_OUT_PATH})
 include_directories (${PROTO_OUT_PATH})
 
 set (PROTO_FILES
-  ssl_referee
-  ssl_autoref
   messages_robocup_ssl_detection
   messages_robocup_ssl_geometry
   messages_robocup_ssl_wrapper
+  rcon
+  ssl_autoref
+  ssl_referee
   )
 
 set (CC_PROTO)
@@ -74,6 +75,7 @@ add_executable (scoreboard
   gui/history_panel.cc
   gui/field_panel.cc
   gui/gui_utils.cc
+  shared/autoref_comparer.cc
   shared/tracker.cc
   shared/udp.cc
   shared/util.cc
@@ -81,3 +83,13 @@ add_executable (scoreboard
 
 target_link_libraries (scoreboard shared_protobuf)
 target_link_libraries (scoreboard ${wxWidgets_LIBRARIES})
+
+add_executable (rcon_forward
+  rcon_forward_main.cc
+  shared/autoref_comparer.cc
+  shared/rconclient.cc
+  shared/udp.cc
+  shared/util.cc
+  )
+
+target_link_libraries (rcon_forward shared_protobuf)

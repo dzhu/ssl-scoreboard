@@ -19,14 +19,27 @@ enum OptionIndex
   UNKNOWN,
   HELP,
   VERBOSE,
-  EVAL,
   DRY,
+  AUTOREFS,
 };
 
+static option::ArgStatus Numeric(const option::Option &option, bool msg)
+{
+  char *endptr = 0;
+  if (option.arg != nullptr) {
+    strtol(option.arg, &endptr, 10);
+  }
+  if (endptr != option.arg && *endptr == 0) {
+    return option::ARG_OK;
+  }
+  return option::ARG_ILLEGAL;
+}
+
 const option::Descriptor options[] = {
-  {UNKNOWN, 0, "", "", option::Arg::None, "A scoreboard for the SSL."},      //
-  {HELP, 0, "h", "help", option::Arg::None, "-h, --help: print help"},       //
-  {VERBOSE, 0, "v", "verbose", option::Arg::None, "-v,--verbose: verbose"},  //
+  {UNKNOWN, 0, "", "", option::Arg::None, "A scoreboard for the SSL."},          //
+  {HELP, 0, "h", "help", option::Arg::None, "-h, --help: print help"},           //
+  {VERBOSE, 0, "v", "verbose", option::Arg::None, "-v,--verbose: verbose"},      //
+  {AUTOREFS, 0, "a", "autorefs", Numeric, "-a,--autorefs: number of autorefs"},  //
   {0, 0, nullptr, nullptr, nullptr, nullptr},
 };
 
@@ -52,6 +65,8 @@ wxThread::ExitCode NetworkRecvThread::Entry()
   SSL_WrapperPacket vision_msg;
   SSL_Referee ref_msg;
   ssl::SSL_Autoref autoref_msg;
+
+  Address src;
 
   fd_set read_fds;
   int n_fds = 1 + std::max(std::max(vision_net.getFd(), ref_net.getFd()), autoref_net.getFd());
@@ -83,8 +98,8 @@ wxThread::ExitCode NetworkRecvThread::Entry()
     if (FD_ISSET(ref_net.getFd(), &read_fds) && ref_net.recv(ref_msg)) {
       board->CallAfter([=]() { board->updateReferee(ref_msg); });
     }
-    if (FD_ISSET(autoref_net.getFd(), &read_fds) && autoref_net.recv(autoref_msg)) {
-      board->CallAfter([=]() { board->updateAutoref(autoref_msg); });
+    if (FD_ISSET(autoref_net.getFd(), &read_fds) && autoref_net.recv(autoref_msg, src)) {
+      board->CallAfter([=]() { board->updateAutoref(autoref_msg, src); });
     }
   }
 
@@ -121,6 +136,11 @@ bool ScoreboardApp::OnInit()
   if (parse.error() || args[HELP] != nullptr || args[UNKNOWN] != nullptr) {
     option::printUsage(std::cout, options);
     return false;
+  }
+
+  if (args[AUTOREFS]) {
+    printf("autorefs: %lu\n", atol(args[AUTOREFS].arg));
+    comparer.setNumAutorefs(atol(args[AUTOREFS].arg));
   }
 
   display_frame = new ScoreboardFrame(_T("SSL Scoreboard"), this);
@@ -162,15 +182,17 @@ void ScoreboardApp::updateGeometry(const SSL_GeometryData &g)
   display_frame->Refresh();
 }
 
-void ScoreboardApp::updateAutoref(const ssl::SSL_Autoref &a)
+void ScoreboardApp::updateAutoref(const ssl::SSL_Autoref &a, const Address &src)
 {
-  display_frame->history_panel->update(a);
-  display_frame->Refresh();
+  if (comparer.proc_msg(a, src)) {
+    display_frame->history_panel->update(a);
+    display_frame->Refresh();
 
-  if (enable_replays && a.has_replay()) {
-    replay_start = a.replay().start_timestamp() - replay_margin_usec;
-    replay_end = a.replay().end_timestamp() + replay_margin_usec;
-    replay_actual_start = a.command_timestamp();
+    if (enable_replays && a.has_replay()) {
+      replay_start = a.replay().start_timestamp() - replay_margin_usec;
+      replay_end = a.replay().end_timestamp() + replay_margin_usec;
+      replay_actual_start = a.command_timestamp();
+    }
   }
 }
 
