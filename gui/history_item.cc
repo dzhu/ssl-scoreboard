@@ -124,14 +124,14 @@ void wxRefereeHistoryItem::setEmph(bool e)
   emph = e;
 
   wxFont label_font(wxFontInfo(20).Family(wxFONTFAMILY_DEFAULT).Italic());
-  wxFont text_font(wxFontInfo(40).Family(wxFONTFAMILY_DEFAULT));
-  wxFont command_font(wxFontInfo(55).Family(wxFONTFAMILY_DEFAULT));
-  wxFont next_command_font(wxFontInfo(55).Family(wxFONTFAMILY_DEFAULT));
+  wxFont text_font(wxFontInfo(25).Family(wxFONTFAMILY_DEFAULT));
+  wxFont command_font(wxFontInfo(30).Family(wxFONTFAMILY_DEFAULT));
+  wxFont next_command_font(wxFontInfo(40).Family(wxFONTFAMILY_DEFAULT));
 
   wxFont small_label_font(wxFontInfo(12).Family(wxFONTFAMILY_DEFAULT).Italic());
   wxFont small_text_font(wxFontInfo(20).Family(wxFONTFAMILY_DEFAULT));
-  wxFont small_command_font(wxFontInfo(40).Family(wxFONTFAMILY_DEFAULT));
-  wxFont small_next_command_font(wxFontInfo(40).Family(wxFONTFAMILY_DEFAULT));
+  wxFont small_command_font(wxFontInfo(20).Family(wxFONTFAMILY_DEFAULT));
+  wxFont small_next_command_font(wxFontInfo(30).Family(wxFONTFAMILY_DEFAULT));
 
   if (!emph) {
     animate_timer->Stop();

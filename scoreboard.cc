@@ -144,10 +144,10 @@ bool ScoreboardApp::OnInit()
   }
   comparer.setTimeThresh(1000 * 1000);
 
-  display_frame = new ScoreboardFrame(_T("SSL Scoreboard"), this);
-  display_frame->Show(true);
   control_frame = new ScoreboardControlFrame(_T("Scoreboard control"), this);
   control_frame->Show(true);
+  display_frame = new ScoreboardFrame(_T("SSL Scoreboard"), this);
+  display_frame->Show(true);
 
   network_thread = new NetworkRecvThread(this);
   network_thread->Create();

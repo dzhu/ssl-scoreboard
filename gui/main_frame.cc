@@ -14,7 +14,7 @@ void ScoreboardFrame::OnClose(wxCloseEvent &event)
 }
 
 ScoreboardFrame::ScoreboardFrame(const wxString &title, ScoreboardApp *board)
-    : wxFrame(nullptr, wxID_ANY, title), board(board)
+    : wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxSize(1400, 600)), board(board)
 {
   Bind(wxEVT_CLOSE_WINDOW, &ScoreboardFrame::OnClose, this);
 
@@ -28,8 +28,8 @@ ScoreboardFrame::ScoreboardFrame(const wxString &title, ScoreboardApp *board)
   sizer->Add(15, 15, gbp(5, 2));
   sizer->Add(15, 15, gbp(0, 4));
   sizer->AddGrowableRow(4);
-  sizer->AddGrowableCol(1, 4);
-  sizer->AddGrowableCol(3, 5);
+  sizer->AddGrowableCol(1, 3);
+  sizer->AddGrowableCol(3, 7);
 
   wxFont top_label_font(32, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL);
 

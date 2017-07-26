@@ -16,13 +16,13 @@ GameInfoPanel::GameInfoPanel(wxWindow *parent, wxWindowID id, ScoreboardApp *boa
   auto sizer = new wxBoxSizer(wxVERTICAL);
   SetSizer(sizer);
 
-  wxFont label_font(wxFontInfo(30).Family(wxFONTFAMILY_DEFAULT).Italic());
-  wxFont text_font(wxFontInfo(30).Family(wxFONTFAMILY_DEFAULT));
-  wxFont name_font(wxFontInfo(45).Family(wxFONTFAMILY_DEFAULT));
-  wxFont score_font(wxFontInfo(65).Family(wxFONTFAMILY_DEFAULT));
+  wxFont label_font(wxFontInfo(15).Family(wxFONTFAMILY_DEFAULT).Italic());
+  wxFont text_font(wxFontInfo(25).Family(wxFONTFAMILY_DEFAULT));
+  wxFont name_font(wxFontInfo(25).Family(wxFONTFAMILY_DEFAULT));
+  wxFont score_font(wxFontInfo(30).Family(wxFONTFAMILY_DEFAULT));
 
-  wxFont time_label_font(wxFontInfo(50).Family(wxFONTFAMILY_DEFAULT).Italic());
-  wxFont time_text_font(wxFontInfo(50).Family(wxFONTFAMILY_DEFAULT));
+  wxFont time_label_font(wxFontInfo(15).Family(wxFONTFAMILY_DEFAULT).Italic());
+  wxFont time_text_font(wxFontInfo(30).Family(wxFONTFAMILY_DEFAULT));
 
   {
     auto score_sizer = new wxGridBagSizer(0, 0);
