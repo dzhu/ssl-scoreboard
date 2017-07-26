@@ -3,8 +3,6 @@
 #include "shared/udp.h"
 #include "ssl_autoref.pb.h"
 
-const int64_t TIME_THRESH_USEC = 1000 * 1000;
-
 struct received_msg
 {
   uint64_t time;
@@ -16,21 +14,23 @@ class AutorefComparer
 {
   std::vector<received_msg> history;
   int n_autorefs;
+  uint64_t time_thresh_usec;
 
   bool autoref_msg_equal(const ssl::SSL_Autoref &p1, const ssl::SSL_Autoref &p2);
 
 public:
-  AutorefComparer() : n_autorefs(1)
-  {
-  }
-
-  AutorefComparer(int n_autorefs) : n_autorefs(n_autorefs)
+  AutorefComparer(int n = 1, uint64_t t = 1000 * 1000) : n_autorefs(n), time_thresh_usec(t)
   {
   }
 
   void setNumAutorefs(int n)
   {
     n_autorefs = n;
+  }
+
+  void setTimeThresh(uint64_t t)
+  {
+    time_thresh_usec = t;
   }
 
   bool proc_msg(const ssl::SSL_Autoref &msg, const Address &src);

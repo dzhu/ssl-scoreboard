@@ -48,7 +48,7 @@ bool AutorefComparer::proc_msg(const ssl::SSL_Autoref &msg, const Address &src)
     received_msg old = *iter;
 
     // Clear and ignore messages that are too old.
-    if (old.time < now - TIME_THRESH_USEC) {
+    if (old.time < now - time_thresh_usec) {
       iter = history.erase(iter);
     }
     // Check if this message matches.

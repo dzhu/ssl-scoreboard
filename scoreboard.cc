@@ -142,6 +142,7 @@ bool ScoreboardApp::OnInit()
     printf("autorefs: %lu\n", atol(args[AUTOREFS].arg));
     comparer.setNumAutorefs(atol(args[AUTOREFS].arg));
   }
+  comparer.setTimeThresh(1000 * 1000);
 
   display_frame = new ScoreboardFrame(_T("SSL Scoreboard"), this);
   display_frame->Show(true);

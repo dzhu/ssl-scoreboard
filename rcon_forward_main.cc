@@ -15,8 +15,13 @@ int main(int argc, char **argv)
   puts("Autoref comparer running...");
 
   int n_autorefs = 1;
+  uint64_t time_thresh_msec = 1000;
+
   if (argc > 1) {
     n_autorefs = atoi(argv[1]);
+  }
+  if (argc > 2) {
+    n_autorefs = atol(argv[2]);
   }
 
   UDP autoref_net;
@@ -30,7 +35,7 @@ int main(int argc, char **argv)
   struct timeval timeout;
   Address src;
 
-  AutorefComparer comparer(n_autorefs);
+  AutorefComparer comparer(n_autorefs, time_thresh_msec * 1000);
 
   bool rcon_opened = false;
   RemoteClient rcon;
