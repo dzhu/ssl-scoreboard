@@ -32,8 +32,8 @@ int main(int argc, char **argv)
 
   AutorefComparer comparer(n_autorefs);
 
+  bool rcon_opened = false;
   RemoteClient rcon;
-  rcon.open("localhost", 10007);
 
   while (true) {
     FD_ZERO(&read_fds);
@@ -45,6 +45,10 @@ int main(int argc, char **argv)
 
     if (FD_ISSET(autoref_net.getFd(), &read_fds) && autoref_net.recv(msg, src)) {
       if (comparer.proc_msg(msg, src)) {
+        if (!rcon_opened) {
+          rcon_opened = rcon.open("localhost", 10007);
+        }
+
         // TODO actually decide on the right command
         rcon.sendCommand(SSL_Referee::STOP);
       }
