@@ -108,7 +108,7 @@ void GameInfoPanel::update()
     time_text->SetForegroundColour(wxColour(255, 64, 64));
   }
   else {
-    time_text->SetBackgroundColour(wxNullColour);
+    time_text->SetForegroundColour(wxColour(0, 0, 0));
   }
 
   GetSizer()->Layout();
