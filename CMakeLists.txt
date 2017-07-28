@@ -76,6 +76,7 @@ add_executable (scoreboard
   gui/field_panel.cc
   gui/gui_utils.cc
   shared/autoref_comparer.cc
+  shared/rconclient.cc
   shared/tracker.cc
   shared/udp.cc
   shared/util.cc

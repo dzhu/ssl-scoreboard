@@ -34,7 +34,7 @@ class RemoteClient
   SSL_RefereeRemoteControlRequest createMessage();
 
 public:
-  RemoteClient() : sock(0){};
+  RemoteClient() : sock(-1){};
   bool open(const char *hostname, int port);
 
   bool sendRequest(const SSL_RefereeRemoteControlRequest &request);
@@ -43,4 +43,10 @@ public:
                 SSL_RefereeRemoteControlRequest::CardInfo::CardTeam team);
   bool sendStage(SSL_Referee::Stage stage);
   bool sendCommand(SSL_Referee::Command command);
+  bool sendCommand(SSL_Referee::Command command, SSL_Referee::Point designated_point);
+
+  bool isOpened() const
+  {
+    return sock >= 0;
+  };
 };

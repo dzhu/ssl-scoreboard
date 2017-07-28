@@ -34,6 +34,18 @@ ScoreboardControlFrame::ScoreboardControlFrame(const wxString &title, Scoreboard
   sizer->Add(flip_sides, 0);
   flip_sides->Bind(wxEVT_CHECKBOX, [=](wxCommandEvent &event) { board->setFlipSides(flip_sides->GetValue()); });
 
+  wxCheckBox *enable_blue_placement = new wxCheckBox(this, wxID_ANY, "Blue team can place ball");
+  enable_blue_placement->SetValue(true);
+  sizer->Add(enable_blue_placement, 0);
+  enable_blue_placement->Bind(
+    wxEVT_CHECKBOX, [=](wxCommandEvent &event) { board->setBluePlacement(enable_blue_placement->GetValue()); });
+
+  wxCheckBox *enable_yellow_placement = new wxCheckBox(this, wxID_ANY, "Yellow team can place ball");
+  enable_yellow_placement->SetValue(true);
+  sizer->Add(enable_yellow_placement, 0);
+  enable_yellow_placement->Bind(
+    wxEVT_CHECKBOX, [=](wxCommandEvent &event) { board->setYellowPlacement(enable_yellow_placement->GetValue()); });
+
   // wxCheckBox *follow_ball = new wxCheckBox(this, wxID_ANY, "Replays follow ball");
   // follow_ball->SetValue(true);
   // sizer->Add(follow_ball, 0);

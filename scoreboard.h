@@ -13,6 +13,7 @@
 #include "messages_robocup_ssl_wrapper.pb.h"
 #include "ssl_autoref.pb.h"
 
+#include "shared/rconclient.h"
 class ScoreboardApp;
 
 class NetworkRecvThread : public wxThread
@@ -40,6 +41,8 @@ class ScoreboardApp : public wxApp
 
   AutorefComparer comparer;
 
+  RemoteClient rcon;
+
   void refresh()
   {
     display_frame->Refresh();
@@ -60,6 +63,8 @@ public:
 
   bool flip_sides;
   bool enable_replays, replays_follow_ball;
+
+  bool enable_blue_placement, enable_yellow_placement;
 
   virtual bool OnInit();
   virtual int OnExit();
@@ -82,5 +87,13 @@ public:
   void setFlipSides(bool e)
   {
     flip_sides = e;
+  }
+  void setBluePlacement(bool v)
+  {
+    enable_blue_placement = v;
+  }
+  void setYellowPlacement(bool v)
+  {
+    enable_yellow_placement = v;
   }
 };

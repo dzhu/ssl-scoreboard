@@ -34,7 +34,7 @@ class vector2d
 public:
   num x, y;
 
-  vector2d()
+  vector2d() : vector2d(0, 0)
   {
   }
   vector2d(num nx, num ny)

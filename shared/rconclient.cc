@@ -186,3 +186,11 @@ bool RemoteClient::sendCommand(SSL_Referee::Command command)
   request.set_command(command);
   return sendRequest(request);
 }
+
+bool RemoteClient::sendCommand(SSL_Referee::Command command, SSL_Referee::Point designated_position)
+{
+  SSL_RefereeRemoteControlRequest request = createMessage();
+  request.set_command(command);
+  request.mutable_designated_position()->CopyFrom(designated_position);
+  return sendRequest(request);
+}

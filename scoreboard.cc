@@ -115,7 +115,9 @@ ScoreboardApp::ScoreboardApp(int argc, char **argv)
       replay_actual_start(0),
       flip_sides(false),
       enable_replays(true),
-      replays_follow_ball(true)
+      replays_follow_ball(true),
+      enable_blue_placement(true),
+      enable_yellow_placement(true)
 {
 }
 
@@ -193,6 +195,59 @@ void ScoreboardApp::updateAutoref(const ssl::SSL_Autoref &a, const Address &src)
       replay_start = a.replay().start_timestamp() - replay_margin_usec;
       replay_end = a.replay().end_timestamp() + replay_margin_usec;
       replay_actual_start = a.command_timestamp();
+    }
+
+    if (!rcon.isOpened()) {
+      rcon.open("localhost", 10007);
+    }
+
+    if (rcon.isOpened()) {
+      // TODO actually decide on the right command
+      rcon.sendCommand(SSL_Referee::STOP);
+
+      if (comparer.hasDesignatedPoint() && (enable_blue_placement || enable_yellow_placement)) {
+        Team placing_team = TeamNone;
+
+        if (enable_blue_placement && !enable_yellow_placement) {
+          placing_team = TeamBlue;
+        }
+        else if (!enable_blue_placement && enable_yellow_placement) {
+          placing_team = TeamYellow;
+        }
+        else {
+          auto flip_team
+            = [](ssl::SSL_Autoref::Team team) { return team == ssl::SSL_Autoref::BLUE ? TeamYellow : TeamBlue; };
+
+          switch (a.event_case()) {
+            case ssl::SSL_Autoref::kBallOutOfField: {
+              placing_team = flip_team(a.ball_out_of_field().last_touch());
+              break;
+            }
+            case ssl::SSL_Autoref::kFoul: {
+              placing_team = flip_team(a.foul().offending_team());
+              break;
+            }
+            case ssl::SSL_Autoref::kLackOfProgress: {
+              placing_team = RandomTeam();
+              break;
+            }
+            case ssl::SSL_Autoref::kGoal: {
+              placing_team = flip_team(a.goal().scoring_team());
+              break;
+            }
+            case ssl::SSL_Autoref::EVENT_NOT_SET: {
+              break;
+            }
+          }
+        }
+
+        if (placing_team != TeamNone) {
+          rcon.sendCommand(
+            placing_team == TeamBlue ? SSL_Referee::BALL_PLACEMENT_BLUE : SSL_Referee::BALL_PLACEMENT_YELLOW,
+            comparer.getDesignatedPoint());
+          printf("ball placement: <%.0f,%.0f>\n", comparer.getDesignatedPoint().x(), comparer.getDesignatedPoint().y());
+        }
+      }
     }
   }
 }
