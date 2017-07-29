@@ -252,6 +252,17 @@ void ScoreboardApp::updateAutoref(const ssl::SSL_Autoref &a, const Address &src)
   }
 }
 
+void ScoreboardApp::sendCommand(SSL_Referee::Command c)
+{
+  if (!rcon.isOpened()) {
+    rcon.open("localhost", 10007);
+  }
+
+  if (rcon.isOpened()) {
+    rcon.sendCommand(c);
+  }
+}
+
 void ScoreboardApp::updateReferee(const SSL_Referee &r)
 {
   referee_msg = r;

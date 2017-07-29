@@ -75,6 +75,7 @@ public:
   void updateGeometry(const SSL_GeometryData &g);
   void updateAutoref(const ssl::SSL_Autoref &a, const Address &src);
   void updateReferee(const SSL_Referee &r);
+  void sendCommand(SSL_Referee::Command c);
 
   void setEnableReplays(bool e)
   {

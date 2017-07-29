@@ -4,11 +4,13 @@
 
 #include "history_item.h"
 
+#include "scoreboard.h"
+
 using gbp = wxGBPosition;
 
-std::string infringementDescription(ssl::SSL_Autoref::RuleInfringement::FoulType f)
+std::string infringementDescription(ssl::SSL_Autoref a)
 {
-  switch (f) {
+  switch (a.foul().foul_type()) {
     case ssl::SSL_Autoref::RuleInfringement::BALL_SPEED:
       return "ball speed";
     case ssl::SSL_Autoref::RuleInfringement::DEFENDER_DEFENSE_AREA_PARTIAL:
@@ -40,7 +42,101 @@ std::string infringementDescription(ssl::SSL_Autoref::RuleInfringement::FoulType
   }
 }
 
-wxRefereeHistoryItem::wxRefereeHistoryItem(wxWindow *parent, wxWindowID id, ssl::SSL_Autoref update)
+SSL_Referee::Command getNextCommand(ssl::SSL_Autoref a)
+{
+  switch (a.event_case()) {
+    case ssl::SSL_Autoref::kBallOutOfField: {
+      Team team;
+      TeamCommand c;
+
+      switch (a.ball_out_of_field().last_touch()) {
+        case ssl::SSL_Autoref::BLUE:
+          team = TeamYellow;
+          break;
+        case ssl::SSL_Autoref::YELLOW:
+          team = TeamBlue;
+          break;
+      }
+
+      auto out_point = a.ball_out_of_field().position();
+      bool past_goal_line = fabs(out_point.x()) - fabs(out_point.y()) > FieldLengthH - FieldWidthH;
+      if (past_goal_line) {
+        c = DIRECT_FREE;
+      }
+      else {
+        c = INDIRECT_FREE;
+      }
+
+      return teamCommand(c, team);
+    }
+
+    case ssl::SSL_Autoref::kFoul: {
+      Team team;
+      TeamCommand c;
+
+      switch (a.foul().offending_team()) {
+        case ssl::SSL_Autoref::BLUE:
+          team = TeamYellow;
+          break;
+        case ssl::SSL_Autoref::YELLOW:
+          team = TeamBlue;
+          break;
+      }
+
+      switch (a.foul().foul_type()) {
+        case ssl::SSL_Autoref::RuleInfringement::BALL_SPEED:
+        case ssl::SSL_Autoref::RuleInfringement::ATTACKER_DEFENSE_AREA:
+        case ssl::SSL_Autoref::RuleInfringement::DEFENSE_AREA_DISTANCE:
+        case ssl::SSL_Autoref::RuleInfringement::DOUBLE_TOUCH:
+        case ssl::SSL_Autoref::RuleInfringement::DRIBBLING:
+        case ssl::SSL_Autoref::RuleInfringement::CARPETING:
+        case ssl::SSL_Autoref::RuleInfringement::CHIP_GOAL:
+          c = INDIRECT_FREE;
+          break;
+
+        case ssl::SSL_Autoref::RuleInfringement::COLLISION:
+          c = DIRECT_FREE;
+          break;
+
+        case ssl::SSL_Autoref::RuleInfringement::DEFENDER_DEFENSE_AREA_FULL:
+          c = PREPARE_PENALTY;
+          break;
+
+        case ssl::SSL_Autoref::RuleInfringement::DEFENDER_DEFENSE_AREA_PARTIAL:
+        case ssl::SSL_Autoref::RuleInfringement::STOP_BALL_DISTANCE:
+        case ssl::SSL_Autoref::RuleInfringement::STOP_SPEED:
+        case ssl::SSL_Autoref::RuleInfringement::NUMBER_OF_PLAYERS:
+        case ssl::SSL_Autoref::RuleInfringement::OUT_OF_FIELD:
+          // TODO handle things more correctly (work cards in somehow?)
+          return SSL_Referee::FORCE_START;
+      }
+
+      return teamCommand(c, team);
+    }
+
+    case ssl::SSL_Autoref::kLackOfProgress: {
+      return SSL_Referee::FORCE_START;
+    }
+
+    case ssl::SSL_Autoref::kGoal: {
+      switch (a.goal().scoring_team()) {
+        case ssl::SSL_Autoref::BLUE:
+          return SSL_Referee::PREPARE_KICKOFF_YELLOW;
+        case ssl::SSL_Autoref::YELLOW:
+          return SSL_Referee::PREPARE_KICKOFF_BLUE;
+      }
+    }
+
+    case ssl::SSL_Autoref::EVENT_NOT_SET: {
+      return SSL_Referee::FORCE_START;
+    }
+  }
+}
+
+wxRefereeHistoryItem::wxRefereeHistoryItem(wxWindow *parent,
+                                           wxWindowID id,
+                                           ScoreboardApp *board,
+                                           ssl::SSL_Autoref update)
     : wxPanel(parent, id, wxDefaultPosition, wxDefaultSize, wxBORDER_RAISED),
       emph(true),
       call_label(nullptr),
@@ -50,7 +146,8 @@ wxRefereeHistoryItem::wxRefereeHistoryItem(wxWindow *parent, wxWindowID id, ssl:
       description_label(nullptr),
       description_text(nullptr),
       stage_time_label(nullptr),
-      stage_time_text(nullptr)
+      stage_time_text(nullptr),
+      board(board)
 {
   create_time = GetTimeMicros();
 
@@ -76,7 +173,7 @@ wxRefereeHistoryItem::wxRefereeHistoryItem(wxWindow *parent, wxWindowID id, ssl:
     } break;
     case ssl::SSL_Autoref::kFoul: {
       bool isBlue = update.foul().offending_team() == ssl::SSL_Autoref_Team_BLUE;
-      call_str = "Foul: " + infringementDescription(update.foul().foul_type());
+      call_str = "Foul: " + infringementDescription(update);
       call_colour = isBlue ? blue_team_colour : yellow_team_colour;
     } break;
     case ssl::SSL_Autoref::kGoal: {
@@ -100,8 +197,16 @@ wxRefereeHistoryItem::wxRefereeHistoryItem(wxWindow *parent, wxWindowID id, ssl:
       break;
   }
 
+  SSL_Referee::Command c = getNextCommand(update);
+
+  wxButton *apply_button = new wxButton(this, wxID_ANY, std::string("Send command ") + SSL_Referee::Command_Name(c));
+
+  apply_button->Bind(wxEVT_BUTTON, [=](wxCommandEvent &event) { board->sendCommand(c); });
+
   call_text = makeText(this, ws(call_str), call_colour);
+
   sizer->Add(call_text);
+  sizer->Add(apply_button, 0, wxALIGN_CENTER_VERTICAL);
 
   if (update.game_timestamp().has_stage_time_left()) {
     stage_time_label = makeText(this, "Stage time left");

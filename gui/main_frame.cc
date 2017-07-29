@@ -42,7 +42,7 @@ ScoreboardFrame::ScoreboardFrame(const wxString &title, ScoreboardApp *board)
   info_panel = new GameInfoPanel(this, wxID_ANY, board);
   sizer->Add(info_panel, gbp(1, 1), wxGBSpan(2, 1), wxEXPAND);
 
-  history_panel = new HistoryPanel(this, wxID_ANY, 5);
+  history_panel = new HistoryPanel(this, wxID_ANY, board, 5);
   sizer->Add(history_panel, gbp(2, 3), wxGBSpan(3, 1), wxEXPAND);
 
   field_panel = new FieldPanel(this, wxID_ANY, board);

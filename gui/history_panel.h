@@ -10,13 +10,15 @@ class ScoreboardApp;
 class HistoryPanel : public wxPanel
 {
   unsigned int max_items;
+  ScoreboardApp *board;
 
 public:
   HistoryPanel() : wxPanel(), max_items(0)
   {
   }
 
-  HistoryPanel(wxWindow *parent, wxWindowID id, int max_items) : wxPanel(parent, id), max_items(max_items)
+  HistoryPanel(wxWindow *parent, wxWindowID id, ScoreboardApp *board, int max_items)
+      : wxPanel(parent, id), board(board), max_items(max_items)
   {
     SetSizer(new wxBoxSizer(wxVERTICAL));
   }

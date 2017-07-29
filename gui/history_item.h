@@ -6,6 +6,8 @@
 #include "ssl_autoref.pb.h"
 #include "ssl_referee.pb.h"
 
+class ScoreboardApp;
+
 class wxRefereeHistoryItem : public wxPanel
 {
   wxSizer *sizer;
@@ -20,8 +22,10 @@ class wxRefereeHistoryItem : public wxPanel
 
   uint64_t create_time;
 
+  ScoreboardApp *board;
+
 public:
-  wxRefereeHistoryItem(wxWindow *parent, wxWindowID id, ssl::SSL_Autoref update);
+  wxRefereeHistoryItem(wxWindow *parent, wxWindowID id, ScoreboardApp *board, ssl::SSL_Autoref update);
 
   void setEmph(bool e);
 

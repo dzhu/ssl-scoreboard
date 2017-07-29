@@ -13,7 +13,7 @@ void HistoryPanel::update(const ssl::SSL_Autoref &a)
   }
 
   // create and insert new item
-  wxRefereeHistoryItem *item = new wxRefereeHistoryItem(this, wxID_ANY, a);
+  wxRefereeHistoryItem *item = new wxRefereeHistoryItem(this, wxID_ANY, board, a);
   // sizer->PrependSpacer(10);
   sizer->Insert(0, item, 0, wxEXPAND);
 
