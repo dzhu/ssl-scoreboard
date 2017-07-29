@@ -1,7 +1,7 @@
 #include "history_panel.h"
 #include "history_item.h"
 
-void HistoryPanel::update(const ssl::SSL_Autoref &a)
+void HistoryPanel::update(const std::vector<ssl::SSL_Autoref> &msgs)
 {
   auto sizer = GetSizer();
 
@@ -13,7 +13,7 @@ void HistoryPanel::update(const ssl::SSL_Autoref &a)
   }
 
   // create and insert new item
-  wxRefereeHistoryItem *item = new wxRefereeHistoryItem(this, wxID_ANY, board, a);
+  wxRefereeHistoryItem *item = new wxRefereeHistoryItem(this, wxID_ANY, board, msgs);
   // sizer->PrependSpacer(10);
   sizer->Insert(0, item, 0, wxEXPAND);
 

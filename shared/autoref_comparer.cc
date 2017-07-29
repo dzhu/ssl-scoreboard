@@ -44,7 +44,7 @@ void AutorefComparer::computeDesignatedPoint(std::vector<received_msg> msgs)
     case ssl::SSL_Autoref::kBallOutOfField: {
       // should compare multiple sources, but I'm going to be lazy right now
       auto msg = msgs[0].msg;
-      auto out_point = msg.ball_out_of_field().position();
+      SSL_Referee::Point out_point = msg.ball_out_of_field().position();
       bool past_goal_line = fabs(out_point.x()) - fabs(out_point.y()) > FieldLengthH - FieldWidthH;
       if (past_goal_line) {
         bool own_half
@@ -55,7 +55,7 @@ void AutorefComparer::computeDesignatedPoint(std::vector<received_msg> msgs)
       else {
         designated_point.set_x(out_point.x());
       }
-      designated_point.set_y(2900 * (out_point.y() > 0 ? 1 : -1));
+      designated_point.set_y((FieldWidthH - 100) * (out_point.y() > 0 ? 1 : -1));
       has_designated_point = true;
       break;
     }
@@ -96,7 +96,19 @@ void AutorefComparer::computeDesignatedPoint(std::vector<received_msg> msgs)
 
 bool AutorefComparer::proc_msg(const ssl::SSL_Autoref &msg, const Address &src)
 {
-  printf("\nReceived message from %s.\n", src.toString().c_str());
+  printf("\nReceived message from %s (%s).\n",
+         src.toString().c_str(),
+         msg.has_autoref_name() ? msg.autoref_name().c_str() : "<unknown>");
+
+  switch (msg.event_case()) {
+    case ssl::SSL_Autoref::kBallOutOfField: {
+      printf("position: %.3f,%.3f\n", msg.ball_out_of_field().position().x(), msg.ball_out_of_field().position().y());
+      break;
+    }
+    default:
+      break;
+  }
+
   uint64_t now = GetTimeMicros();
 
   int n_found = 0;
@@ -105,8 +117,9 @@ bool AutorefComparer::proc_msg(const ssl::SSL_Autoref &msg, const Address &src)
 
   // Sources of matching messages.
   std::vector<Address> senders;
-
   std::vector<received_msg> matches;
+
+  matching_messages.clear();
 
   // Find all senders that sent matching messages recently enough.
   for (auto iter = history.begin(); iter != history.end();) {
@@ -124,6 +137,7 @@ bool AutorefComparer::proc_msg(const ssl::SSL_Autoref &msg, const Address &src)
 
       senders.push_back(old.src);
       matches.push_back(old);
+      matching_messages.push_back(old.msg);
       n_found++;
       iter++;
     }

@@ -58,7 +58,7 @@ void FieldPanel::render(wxPaintEvent &event)
   // vision message times
   uint64_t now = GetTimeMicros();
   uint64_t replay_time = board->replay_start + now - board->replay_actual_start;
-  bool is_replay = replay_time < board->replay_end;
+  bool is_replay = board->enable_replays && (replay_time < board->replay_end);
 
   wxPaintDC dc(this);
   wxGraphicsContext *gc_p = wxGraphicsContext::Create(dc);

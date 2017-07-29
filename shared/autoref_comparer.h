@@ -17,6 +17,7 @@ class AutorefComparer
   uint64_t time_thresh_usec;
   bool has_designated_point;
   SSL_Referee::Point designated_point;
+  std::vector<ssl::SSL_Autoref> matching_messages;
 
   bool autoref_msg_equal(const ssl::SSL_Autoref &p1, const ssl::SSL_Autoref &p2);
 
@@ -42,6 +43,11 @@ public:
   bool hasDesignatedPoint() const
   {
     return has_designated_point;
+  }
+
+  std::vector<ssl::SSL_Autoref> getMatchingMessages() const
+  {
+    return matching_messages;
   }
 
   SSL_Referee::Point getDesignatedPoint() const

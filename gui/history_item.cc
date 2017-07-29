@@ -8,6 +8,27 @@
 
 using gbp = wxGBPosition;
 
+std::string outDescription(const ssl::SSL_Autoref &update)
+{
+  char buf[200];
+
+  auto out_point = update.ball_out_of_field().position();
+  bool past_goal_line = fabs(out_point.x()) - fabs(out_point.y()) > FieldLengthH - FieldWidthH;
+  if (past_goal_line) {
+    bool own_half
+      = (update.ball_out_of_field().last_touch() == ssl::SSL_Autoref::BLUE) == (update.blue_side() * out_point.x() > 0);
+    sprintf(buf,
+            own_half ? "Ball out (corner kick, %.0f,%.0f)" : "Ball out (goal kick, %.0f,%.0f)",
+            out_point.x(),
+            out_point.y());
+    return std::string(buf);
+  }
+  else {
+    sprintf(buf, "Ball out (throw in, %.0f,%.0f)", out_point.x(), out_point.y());
+    return std::string(buf);
+  }
+}
+
 std::string infringementDescription(ssl::SSL_Autoref a)
 {
   switch (a.foul().foul_type()) {
@@ -136,7 +157,7 @@ SSL_Referee::Command getNextCommand(ssl::SSL_Autoref a)
 wxRefereeHistoryItem::wxRefereeHistoryItem(wxWindow *parent,
                                            wxWindowID id,
                                            ScoreboardApp *board,
-                                           ssl::SSL_Autoref update)
+                                           const std::vector<ssl::SSL_Autoref> &updates)
     : wxPanel(parent, id, wxDefaultPosition, wxDefaultSize, wxBORDER_RAISED),
       emph(true),
       call_label(nullptr),
@@ -162,13 +183,23 @@ wxRefereeHistoryItem::wxRefereeHistoryItem(wxWindow *parent,
   std::string call_str, robots_str;
   wxColour call_colour;
 
+  ssl::SSL_Autoref update = updates[0];
+
+  for (const auto &u : updates) {
+    if (std::abs(update.ball_out_of_field().position().x()) > FieldLengthH - 200
+        || std::abs(update.ball_out_of_field().position().y()) > FieldWidthH - 200) {
+      update.CopyFrom(u);
+      break;
+    }
+  }
+
   // default start colour (reddish, to evoke fouls)
   start_colour.Set(255, 128, 128);
 
   switch (update.event_case()) {
     case ssl::SSL_Autoref::kBallOutOfField: {
       bool isBlue = update.ball_out_of_field().last_touch() == ssl::SSL_Autoref_Team_BLUE;
-      call_str = "Ball out";
+      call_str = outDescription(update);
       call_colour = isBlue ? blue_team_colour : yellow_team_colour;
     } break;
     case ssl::SSL_Autoref::kFoul: {

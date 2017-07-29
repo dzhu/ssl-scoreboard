@@ -23,5 +23,5 @@ public:
     SetSizer(new wxBoxSizer(wxVERTICAL));
   }
 
-  void update(const ssl::SSL_Autoref &a);
+  void update(const std::vector<ssl::SSL_Autoref> &msgs);
 };

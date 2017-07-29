@@ -188,12 +188,20 @@ void ScoreboardApp::updateGeometry(const SSL_GeometryData &g)
 void ScoreboardApp::updateAutoref(const ssl::SSL_Autoref &a, const Address &src)
 {
   if (comparer.proc_msg(a, src)) {
-    display_frame->history_panel->update(a);
+    display_frame->history_panel->update(comparer.getMatchingMessages());
     display_frame->Refresh();
 
-    if (enable_replays && a.has_replay()) {
-      replay_start = a.replay().start_timestamp() - replay_margin_usec;
-      replay_end = a.replay().end_timestamp() + replay_margin_usec;
+    if (enable_replays) {
+      replay_start = 1e18;
+      replay_end = 0;
+      for (const auto &a : comparer.getMatchingMessages()) {
+        if (a.has_replay()) {
+          replay_start = std::min(replay_start, a.replay().start_timestamp());
+          replay_end = std::max(replay_end, a.replay().end_timestamp());
+        }
+      }
+      replay_start -= replay_margin_usec;
+      replay_end += replay_margin_usec;
       replay_actual_start = a.command_timestamp();
     }
 

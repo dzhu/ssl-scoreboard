@@ -25,7 +25,10 @@ class wxRefereeHistoryItem : public wxPanel
   ScoreboardApp *board;
 
 public:
-  wxRefereeHistoryItem(wxWindow *parent, wxWindowID id, ScoreboardApp *board, ssl::SSL_Autoref update);
+  wxRefereeHistoryItem(wxWindow *parent,
+                       wxWindowID id,
+                       ScoreboardApp *board,
+                       const std::vector<ssl::SSL_Autoref> &msgs);
 
   void setEmph(bool e);
 
