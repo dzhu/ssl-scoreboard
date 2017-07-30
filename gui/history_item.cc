@@ -231,12 +231,69 @@ wxRefereeHistoryItem::wxRefereeHistoryItem(wxWindow *parent,
   SSL_Referee::Command c = getNextCommand(update);
 
   wxButton *apply_button = new wxButton(this, wxID_ANY, std::string("Send command ") + SSL_Referee::Command_Name(c));
-
   apply_button->Bind(wxEVT_BUTTON, [=](wxCommandEvent &event) { board->sendCommand(c); });
 
+  wxButton *place_button = new wxButton(this, wxID_ANY, std::string("Send ball placement command"));
+  place_button->Bind(wxEVT_BUTTON, [=](wxCommandEvent &event) {
+    if (!board->rcon.isOpened()) {
+      board->rcon.open("localhost", 10007);
+    }
+
+    if (board->rcon.isOpened()) {
+      // TODO actually decide on the right command
+      board->rcon.sendCommand(SSL_Referee::STOP);
+
+      if (board->comparer.hasDesignatedPoint() && (board->enable_blue_placement || board->enable_yellow_placement)) {
+        Team placing_team = TeamNone;
+
+        if (board->enable_blue_placement && !board->enable_yellow_placement) {
+          placing_team = TeamBlue;
+        }
+        else if (!board->enable_blue_placement && board->enable_yellow_placement) {
+          placing_team = TeamYellow;
+        }
+        else {
+          auto flip_team
+            = [](ssl::SSL_Autoref::Team team) { return team == ssl::SSL_Autoref::BLUE ? TeamYellow : TeamBlue; };
+
+          switch (update.event_case()) {
+            case ssl::SSL_Autoref::kBallOutOfField: {
+              placing_team = flip_team(update.ball_out_of_field().last_touch());
+              break;
+            }
+            case ssl::SSL_Autoref::kFoul: {
+              placing_team = flip_team(update.foul().offending_team());
+              break;
+            }
+            case ssl::SSL_Autoref::kLackOfProgress: {
+              placing_team = RandomTeam();
+              break;
+            }
+            case ssl::SSL_Autoref::kGoal: {
+              placing_team = flip_team(update.goal().scoring_team());
+              break;
+            }
+            case ssl::SSL_Autoref::EVENT_NOT_SET: {
+              break;
+            }
+          }
+        }
+
+        if (placing_team != TeamNone) {
+          board->rcon.sendCommand(
+            placing_team == TeamBlue ? SSL_Referee::BALL_PLACEMENT_BLUE : SSL_Referee::BALL_PLACEMENT_YELLOW,
+            board->comparer.getDesignatedPoint());
+          printf("ball placement: <%.0f,%.0f>\n",
+                 board->comparer.getDesignatedPoint().x(),
+                 board->comparer.getDesignatedPoint().y());
+        }
+      }
+    }
+  });
   call_text = makeText(this, ws(call_str), call_colour);
 
   sizer->Add(call_text);
+  sizer->Add(place_button, 0, wxALIGN_CENTER_VERTICAL);
   sizer->Add(apply_button, 0, wxALIGN_CENTER_VERTICAL);
 
   if (update.game_timestamp().has_stage_time_left()) {

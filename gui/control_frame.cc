@@ -46,6 +46,11 @@ ScoreboardControlFrame::ScoreboardControlFrame(const wxString &title, Scoreboard
   enable_yellow_placement->Bind(
     wxEVT_CHECKBOX, [=](wxCommandEvent &event) { board->setYellowPlacement(enable_yellow_placement->GetValue()); });
 
+  wxCheckBox *enable_auto = new wxCheckBox(this, wxID_ANY, "Enable automatic commands");
+  enable_auto->SetValue(true);
+  sizer->Add(enable_auto, 0);
+  enable_auto->Bind(wxEVT_CHECKBOX, [=](wxCommandEvent &event) { board->setEnableAuto(enable_auto->GetValue()); });
+
   // wxCheckBox *follow_ball = new wxCheckBox(this, wxID_ANY, "Replays follow ball");
   // follow_ball->SetValue(true);
   // sizer->Add(follow_ball, 0);

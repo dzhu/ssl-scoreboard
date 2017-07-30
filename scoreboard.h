@@ -39,10 +39,6 @@ class ScoreboardApp : public wxApp
   ScoreboardFrame *display_frame;
   ScoreboardControlFrame *control_frame;
 
-  AutorefComparer comparer;
-
-  RemoteClient rcon;
-
   void refresh()
   {
     display_frame->Refresh();
@@ -52,6 +48,9 @@ class ScoreboardApp : public wxApp
   uint64_t replay_margin_usec;
 
 public:
+  AutorefComparer comparer;
+  RemoteClient rcon;
+
   World world;
   std::deque<World> world_history;
 
@@ -65,6 +64,8 @@ public:
   bool enable_replays, replays_follow_ball;
 
   bool enable_blue_placement, enable_yellow_placement;
+
+  bool enable_auto;
 
   virtual bool OnInit();
   virtual int OnExit();
@@ -96,5 +97,9 @@ public:
   void setYellowPlacement(bool v)
   {
     enable_yellow_placement = v;
+  }
+  void setEnableAuto(bool v)
+  {
+    enable_auto = v;
   }
 };
